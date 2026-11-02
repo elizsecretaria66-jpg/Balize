@@ -8,9 +8,15 @@ interface TransacaoItemProps {
   onExcluir?: (id: string) => void;
 }
 
-function formatarValor(valor: number, tipo: "ENTRADA" | "SAIDA") {
-  const sinal = tipo === "SAIDA" ? "-" : "+";
-  return `${sinal} R$ ${valor.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
+function formatarValor(valor: number, tipo: string) {
+  // Verifica se o valor é negativo ou se o tipo é despesa / saída
+  const ehDespesa = valor < 0 || tipo === "SAIDA" || tipo === "DESPESA" || tipo === "despesa";
+  const sinal = ehDespesa ? "-" : "+";
+  
+  // Usa o valor absoluto para evitar problemas de sinal duplo
+  const valorAbsoluto = Math.abs(valor);
+  
+  return `${sinal} R$ ${valorAbsoluto.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
 }
 
 function formatarData(iso: string) {
@@ -83,7 +89,7 @@ export function TransacaoItem({
 
       <span
         className="font-dado shrink-0 text-sm font-semibold"
-        style={{ color: transacao.tipo === "SAIDA" ? "var(--cor-erro)" : "var(--cor-conciliado)" }}
+        style={{ color: (transacao.valor < 0 || transacao.tipo === "SAIDA" || transacao.tipo === "DESPESA") ? "var(--cor-erro)" : "var(--cor-conciliado)" }}
       >
         {formatarValor(transacao.valor, transacao.tipo)}
       </span>
