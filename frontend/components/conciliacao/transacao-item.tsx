@@ -8,12 +8,22 @@ interface TransacaoItemProps {
   onExcluir?: (id: string) => void;
 }
 
-function formatarValor(valor: number, tipo: string) {
-  // Usamos 'as string' para evitar conflito de tipos estritos do TypeScript
-  const tipoStr = tipo as string;
-  const ehDespesa = valor < 0 || tipoStr === "SAIDA" || tipoStr === "DESPESA" || tipoStr === "despesa";
+function formatarValor(valor: number, tipo: string, descricao?: string) {
+  const tipoStr = (tipo || "").toUpperCase();
+  const descStr = (descricao || "").toLowerCase();
+
+  // Verifica se é despesa pelo valor, pelo tipo ou por termos comuns na descrição
+  const ehDespesa = 
+    valor < 0 || 
+    tipoStr === "SAIDA" || 
+    tipoStr === "DESPESA" || 
+    tipoStr === "debito" || 
+    descStr.includes("compra") || 
+    descStr.includes("assinatura") ||
+    descStr.includes("pagamento") ||
+    descStr.includes("débito");
+
   const sinal = ehDespesa ? "-" : "+";
-  
   const valorAbsoluto = Math.abs(valor);
   
   return `${sinal} R$ ${valorAbsoluto.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
@@ -30,8 +40,19 @@ export function TransacaoItem({
   onExcluir,
 }: TransacaoItemProps) {
   const ehSugestao = transacao.status_conciliacao === "SUGESTAO";
-  const tipoStr = transacao.tipo as string;
-  const ehDespesaOuSaida = transacao.valor < 0 || tipoStr === "SAIDA" || tipoStr === "DESPESA" || tipoStr === "despesa";
+  
+  const tipoStr = (transacao.tipo || "").toUpperCase();
+  const descStr = (transacao.descricao_extrato || "").toLowerCase();
+  
+  const ehDespesaOuSaida = 
+    transacao.valor < 0 || 
+    tipoStr === "SAIDA" || 
+    tipoStr === "DESPESA" || 
+    tipoStr === "debito" || 
+    descStr.includes("compra") || 
+    descStr.includes("assinatura") ||
+    descStr.includes("pagamento") ||
+    descStr.includes("débito");
 
   return (
     <div
@@ -93,7 +114,7 @@ export function TransacaoItem({
         className="font-dado shrink-0 text-sm font-semibold"
         style={{ color: ehDespesaOuSaida ? "var(--cor-erro)" : "var(--cor-conciliado)" }}
       >
-        {formatarValor(transacao.valor, transacao.tipo)}
+        {formatarValor(transacao.valor, transacao.tipo, transacao.descricao_extrato)}
       </span>
     </div>
   );
