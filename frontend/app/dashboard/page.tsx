@@ -14,14 +14,16 @@ export default function PaginaDashboard() {
   const [erro, setErro] = useState<string | null>(null);
 
   useEffect(() => {
-    obterDashboard(empresa.id).then(setD).catch((e) => setErro(e.message));
-  }, [empresa.id]);
+    if (empresa?.id) {
+      obterDashboard(empresa.id).then(setD).catch((e) => setErro(e.message));
+    }
+  }, [empresa?.id]);
 
   const kpis = [
-    { label: "Saldo em contas", valor: d ? brl(d.saldo) : "—", nota: "Entradas − saídas dos extratos importados", icon: Wallet, bg: "bg-blue-50", cor: "text-blue-600" },
-    { label: "A receber (30 dias)", valor: d ? brl(d.a_receber_30d) : "—", nota: "Lançamentos pendentes", icon: ArrowUpRight, bg: "bg-emerald-50", cor: "text-emerald-500" },
-    { label: "A pagar (30 dias)", valor: d ? brl(d.a_pagar_30d) : "—", nota: "Lançamentos pendentes", icon: ArrowDownLeft, bg: "bg-rose-50", cor: "text-rose-500" },
-    { label: "Pendências de conciliação", valor: d ? String(d.pendencias_conciliacao) : "—", nota: "Transações aguardando ação", icon: AlertCircle, bg: "bg-amber-50", cor: "text-amber-500", destaque: true },
+    { label: "Saldo em contas", valor: d ? brl(d.saldo ?? 0) : "—", nota: "Entradas − saídas dos extratos importados", icon: Wallet, bg: "bg-blue-50", cor: "text-blue-600" },
+    { label: "A receber (30 dias)", valor: d ? brl(d.a_receber_30d ?? 0) : "—", nota: "Lançamentos pendentes", icon: ArrowUpRight, bg: "bg-emerald-50", cor: "text-emerald-500" },
+    { label: "A pagar (30 dias)", valor: d ? brl(d.a_pagar_30d ?? 0) : "—", nota: "Lançamentos pendentes", icon: ArrowDownLeft, bg: "bg-rose-50", cor: "text-rose-500" },
+    { label: "Pendências de conciliação", valor: d ? String(d.pendencias_conciliacao ?? 0) : "—", nota: "Transações aguardando ação", icon: AlertCircle, bg: "bg-amber-50", cor: "text-amber-500", destaque: true },
   ];
 
   const alertas: { texto: string; href: string }[] = [];
@@ -33,7 +35,7 @@ export default function PaginaDashboard() {
     <main className="mx-auto max-w-6xl px-6 py-10">
       <header className="mb-8">
         <h1 className="text-2xl font-bold text-slate-900">Visão Geral</h1>
-        <p className="mt-1 text-sm text-slate-500">{empresa.nome}</p>
+        <p className="mt-1 text-sm text-slate-500">{empresa?.nome || "Carregando..."}</p>
       </header>
 
       {erro && <p className="mb-4 rounded-lg bg-rose-50 px-4 py-3 text-sm text-rose-600">{erro}</p>}
@@ -56,7 +58,7 @@ export default function PaginaDashboard() {
 
       <section className="mt-8">
         <h2 className="mb-3 text-sm font-semibold text-slate-700">Alertas</h2>
-        {alertas.length > 0 ? (
+        {Array.isArray(alertas) && alertas.length > 0 ? (
           <div className="divide-y divide-slate-100 rounded-xl border border-slate-100 bg-white shadow-sm">
             {alertas.map((a) => (
               <Link key={a.texto} href={a.href} className="flex items-center gap-3 px-5 py-4 text-sm text-slate-700 transition-colors hover:bg-slate-50">
