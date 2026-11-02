@@ -12,8 +12,16 @@ function formatarValor(valor: number, tipo: string, descricao?: string) {
   const tipoStr = (tipo || "").toUpperCase();
   const descStr = (descricao || "").toLowerCase();
 
-  // Verifica se é despesa pelo valor, tipo ou termos na descrição
-  const ehDespesa = 
+  const ehReceitaExplicita = 
+    descStr.includes("salário") || 
+    descStr.includes("salario") || 
+    descStr.includes("transferência recebida") || 
+    descStr.includes("transferencia recebida") ||
+    descStr.includes("recebimento") ||
+    descStr.includes("lucro") ||
+    tipoStr === "ENTRADA";
+
+  const ehDespesa = !ehReceitaExplicita && (
     valor < 0 || 
     tipoStr === "SAIDA" || 
     tipoStr === "DESPESA" || 
@@ -25,12 +33,18 @@ function formatarValor(valor: number, tipo: string, descricao?: string) {
     descStr.includes("débito") ||
     descStr.includes("debito") ||
     descStr.includes("restaurante") ||
-    descStr.includes("transferência") ||
-    descStr.includes("transferencia") ||
+    descStr.includes("transferência enviada") ||
+    descStr.includes("transferencia enviada") ||
     descStr.includes("pix enviado") ||
     descStr.includes("saque") ||
     descStr.includes("tarifa") ||
-    descStr.includes("imposto");
+    descStr.includes("imposto") ||
+    descStr.includes("conta de energia") ||
+    descStr.includes("energia") ||
+    descStr.includes("água") ||
+    descStr.includes("agua") ||
+    descStr.includes("internet")
+  );
 
   const sinal = ehDespesa ? "-" : "+";
   const valorAbsoluto = Math.abs(valor);
@@ -53,7 +67,16 @@ export function TransacaoItem({
   const tipoStr = (transacao.tipo || "").toUpperCase();
   const descStr = (transacao.descricao_extrato || "").toLowerCase();
   
-  const ehDespesaOuSaida = 
+  const ehReceitaExplicita = 
+    descStr.includes("salário") || 
+    descStr.includes("salario") || 
+    descStr.includes("transferência recebida") || 
+    descStr.includes("transferencia recebida") ||
+    descStr.includes("recebimento") ||
+    descStr.includes("lucro") ||
+    tipoStr === "ENTRADA";
+
+  const ehDespesaOuSaida = !ehReceitaExplicita && (
     transacao.valor < 0 || 
     tipoStr === "SAIDA" || 
     tipoStr === "DESPESA" || 
@@ -65,12 +88,18 @@ export function TransacaoItem({
     descStr.includes("débito") ||
     descStr.includes("debito") ||
     descStr.includes("restaurante") ||
-    descStr.includes("transferência") ||
-    descStr.includes("transferencia") ||
+    descStr.includes("transferência enviada") ||
+    descStr.includes("transferencia enviada") ||
     descStr.includes("pix enviado") ||
     descStr.includes("saque") ||
     descStr.includes("tarifa") ||
-    descStr.includes("imposto");
+    descStr.includes("imposto") ||
+    descStr.includes("conta de energia") ||
+    descStr.includes("energia") ||
+    descStr.includes("água") ||
+    descStr.includes("agua") ||
+    descStr.includes("internet")
+  );
 
   return (
     <div
