@@ -9,11 +9,11 @@ interface TransacaoItemProps {
 }
 
 function formatarValor(valor: number, tipo: string) {
-  // Verifica se o valor é negativo ou se o tipo é despesa / saída
-  const ehDespesa = valor < 0 || tipo === "SAIDA" || tipo === "DESPESA" || tipo === "despesa";
+  // Usamos 'as string' para evitar conflito de tipos estritos do TypeScript
+  const tipoStr = tipo as string;
+  const ehDespesa = valor < 0 || tipoStr === "SAIDA" || tipoStr === "DESPESA" || tipoStr === "despesa";
   const sinal = ehDespesa ? "-" : "+";
   
-  // Usa o valor absoluto para evitar problemas de sinal duplo
   const valorAbsoluto = Math.abs(valor);
   
   return `${sinal} R$ ${valorAbsoluto.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
@@ -30,6 +30,8 @@ export function TransacaoItem({
   onExcluir,
 }: TransacaoItemProps) {
   const ehSugestao = transacao.status_conciliacao === "SUGESTAO";
+  const tipoStr = transacao.tipo as string;
+  const ehDespesaOuSaida = transacao.valor < 0 || tipoStr === "SAIDA" || tipoStr === "DESPESA" || tipoStr === "despesa";
 
   return (
     <div
@@ -89,7 +91,7 @@ export function TransacaoItem({
 
       <span
         className="font-dado shrink-0 text-sm font-semibold"
-        style={{ color: (transacao.valor < 0 || transacao.tipo === "SAIDA" || transacao.tipo === "DESPESA") ? "var(--cor-erro)" : "var(--cor-conciliado)" }}
+        style={{ color: ehDespesaOuSaida ? "var(--cor-erro)" : "var(--cor-conciliado)" }}
       >
         {formatarValor(transacao.valor, transacao.tipo)}
       </span>
