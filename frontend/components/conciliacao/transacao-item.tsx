@@ -12,16 +12,25 @@ function formatarValor(valor: number, tipo: string, descricao?: string) {
   const tipoStr = (tipo || "").toUpperCase();
   const descStr = (descricao || "").toLowerCase();
 
-  // Verifica se é despesa pelo valor, pelo tipo ou por termos comuns na descrição
+  // Verifica se é despesa pelo valor, tipo ou termos na descrição
   const ehDespesa = 
     valor < 0 || 
     tipoStr === "SAIDA" || 
     tipoStr === "DESPESA" || 
+    tipoStr === "DEBITO" ||
     tipoStr === "debito" || 
     descStr.includes("compra") || 
     descStr.includes("assinatura") ||
     descStr.includes("pagamento") ||
-    descStr.includes("débito");
+    descStr.includes("débito") ||
+    descStr.includes("debito") ||
+    descStr.includes("restaurante") ||
+    descStr.includes("transferência") ||
+    descStr.includes("transferencia") ||
+    descStr.includes("pix enviado") ||
+    descStr.includes("saque") ||
+    descStr.includes("tarifa") ||
+    descStr.includes("imposto");
 
   const sinal = ehDespesa ? "-" : "+";
   const valorAbsoluto = Math.abs(valor);
@@ -48,11 +57,20 @@ export function TransacaoItem({
     transacao.valor < 0 || 
     tipoStr === "SAIDA" || 
     tipoStr === "DESPESA" || 
+    tipoStr === "DEBITO" ||
     tipoStr === "debito" || 
     descStr.includes("compra") || 
     descStr.includes("assinatura") ||
     descStr.includes("pagamento") ||
-    descStr.includes("débito");
+    descStr.includes("débito") ||
+    descStr.includes("debito") ||
+    descStr.includes("restaurante") ||
+    descStr.includes("transferência") ||
+    descStr.includes("transferencia") ||
+    descStr.includes("pix enviado") ||
+    descStr.includes("saque") ||
+    descStr.includes("tarifa") ||
+    descStr.includes("imposto");
 
   return (
     <div
