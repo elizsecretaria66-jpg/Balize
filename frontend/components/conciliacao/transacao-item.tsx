@@ -12,39 +12,15 @@ function formatarValor(valor: number, tipo: string, descricao?: string) {
   const tipoStr = (tipo || "").toUpperCase();
   const descStr = (descricao || "").toLowerCase();
 
-  const ehReceitaExplicita = 
-    descStr.includes("salário") || 
-    descStr.includes("salario") || 
-    descStr.includes("transferência recebida") || 
-    descStr.includes("transferencia recebida") ||
-    descStr.includes("recebimento") ||
-    descStr.includes("lucro") ||
-    tipoStr === "ENTRADA";
+  // Apenas receitas reais de clientes/entradas externas são positivas (+)
+  const ehReceitaReal = 
+    tipoStr === "ENTRADA" && 
+    !descStr.includes("salário") && 
+    !descStr.includes("salario") &&
+    !descStr.includes("pagamento");
 
-  const ehDespesa = !ehReceitaExplicita && (
-    valor < 0 || 
-    tipoStr === "SAIDA" || 
-    tipoStr === "DESPESA" || 
-    tipoStr === "DEBITO" ||
-    tipoStr === "debito" || 
-    descStr.includes("compra") || 
-    descStr.includes("assinatura") ||
-    descStr.includes("pagamento") ||
-    descStr.includes("débito") ||
-    descStr.includes("debito") ||
-    descStr.includes("restaurante") ||
-    descStr.includes("transferência enviada") ||
-    descStr.includes("transferencia enviada") ||
-    descStr.includes("pix enviado") ||
-    descStr.includes("saque") ||
-    descStr.includes("tarifa") ||
-    descStr.includes("imposto") ||
-    descStr.includes("conta de energia") ||
-    descStr.includes("energia") ||
-    descStr.includes("água") ||
-    descStr.includes("agua") ||
-    descStr.includes("internet")
-  );
+  // Tudo o mais (compras, contas, tarifas, e salários pagos) é despesa (-)
+  const ehDespesa = !ehReceitaReal || valor < 0;
 
   const sinal = ehDespesa ? "-" : "+";
   const valorAbsoluto = Math.abs(valor);
@@ -67,39 +43,13 @@ export function TransacaoItem({
   const tipoStr = (transacao.tipo || "").toUpperCase();
   const descStr = (transacao.descricao_extrato || "").toLowerCase();
   
-  const ehReceitaExplicita = 
-    descStr.includes("salário") || 
-    descStr.includes("salario") || 
-    descStr.includes("transferência recebida") || 
-    descStr.includes("transferencia recebida") ||
-    descStr.includes("recebimento") ||
-    descStr.includes("lucro") ||
-    tipoStr === "ENTRADA";
+  const ehReceitaReal = 
+    tipoStr === "ENTRADA" && 
+    !descStr.includes("salário") && 
+    !descStr.includes("salario") &&
+    !descStr.includes("pagamento");
 
-  const ehDespesaOuSaida = !ehReceitaExplicita && (
-    transacao.valor < 0 || 
-    tipoStr === "SAIDA" || 
-    tipoStr === "DESPESA" || 
-    tipoStr === "DEBITO" ||
-    tipoStr === "debito" || 
-    descStr.includes("compra") || 
-    descStr.includes("assinatura") ||
-    descStr.includes("pagamento") ||
-    descStr.includes("débito") ||
-    descStr.includes("debito") ||
-    descStr.includes("restaurante") ||
-    descStr.includes("transferência enviada") ||
-    descStr.includes("transferencia enviada") ||
-    descStr.includes("pix enviado") ||
-    descStr.includes("saque") ||
-    descStr.includes("tarifa") ||
-    descStr.includes("imposto") ||
-    descStr.includes("conta de energia") ||
-    descStr.includes("energia") ||
-    descStr.includes("água") ||
-    descStr.includes("agua") ||
-    descStr.includes("internet")
-  );
+  const ehDespesaOuSaida = !ehReceitaReal || transacao.valor < 0;
 
   return (
     <div
