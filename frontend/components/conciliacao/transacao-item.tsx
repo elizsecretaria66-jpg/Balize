@@ -8,13 +8,58 @@ interface TransacaoItemProps {
   onExcluir?: (id: string) => void;
 }
 
-function formatarValor(valor: number, tipo: string) {
+function formatarValor(valor: number, tipo: string, descricao?: string) {
   const tipoStr = (tipo || "").toUpperCase();
-  
-  // Regra baseada estritamente no valor numérico ou no tipo oficial de saída
-  const ehDespesa = valor < 0 || tipoStr === "SAIDA" || tipoStr === "DESPESA" || tipoStr === "DEBITO";
+  const descStr = (descricao || "").toLowerCase();
 
-  const sinal = ehDespesa ? "-" : "+";
+  // 1. Verifica se é despesa de forma abrangente
+  const ehDespesa = 
+    valor < 0 || 
+    tipoStr === "SAIDA" || 
+    tipoStr === "DESPESA" || 
+    tipoStr === "DEBITO" ||
+    tipoStr === "D" ||
+    descStr.includes("compra") || 
+    descStr.includes("assinatura") ||
+    descStr.includes("pagamento") ||
+    descStr.includes("débito") ||
+    descStr.includes("debito") ||
+    descStr.includes("restaurante") ||
+    descStr.includes("transferência enviada") ||
+    descStr.includes("transferencia enviada") ||
+    descStr.includes("pix enviado") ||
+    descStr.includes("saque") ||
+    descStr.includes("tarifa") ||
+    descStr.includes("imposto") ||
+    descStr.includes("energia") ||
+    descStr.includes("água") ||
+    descStr.includes("agua") ||
+    descStr.includes("internet") ||
+    descStr.includes("combustível") ||
+    descStr.includes("combustivel") ||
+    descStr.includes("farmácia") ||
+    descStr.includes("farmacia") ||
+    descStr.includes("cartão") ||
+    descStr.includes("cartao");
+
+  // 2. Verifica se é receita explícita
+  const ehReceitaExplicita = 
+    tipoStr === "ENTRADA" ||
+    tipoStr === "CREDITO" ||
+    tipoStr === "C" ||
+    descStr.includes("salário") || 
+    descStr.includes("salario") || 
+    descStr.includes("transferência recebida") || 
+    descStr.includes("transferencia recebida") ||
+    descStr.includes("recebimento") ||
+    descStr.includes("lucro") ||
+    descStr.includes("serviço") ||
+    descStr.includes("freelance");
+
+  // Se for explicitamente receita e NÃO tiver indicação de despesa, é positivo (+). Todo o resto é despesa (-).
+  const finalEhDespesa = ehDespesa || !ehReceitaExplicita;
+
+  const sinal = finalEhDespesa ? "-" : "+";
   const valorAbsoluto = Math.abs(valor);
   
   return `${sinal} R$ ${valorAbsoluto.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
@@ -33,7 +78,51 @@ export function TransacaoItem({
   const ehSugestao = transacao.status_conciliacao === "SUGESTAO";
   
   const tipoStr = (transacao.tipo || "").toUpperCase();
-  const ehDespesaOuSaida = transacao.valor < 0 || tipoStr === "SAIDA" || tipoStr === "DESPESA" || tipoStr === "DEBITO";
+  const descStr = (transacao.descricao_extrato || "").toLowerCase();
+  
+  const ehDespesa = 
+    transacao.valor < 0 || 
+    tipoStr === "SAIDA" || 
+    tipoStr === "DESPESA" || 
+    tipoStr === "DEBITO" ||
+    tipoStr === "D" ||
+    descStr.includes("compra") || 
+    descStr.includes("assinatura") ||
+    descStr.includes("pagamento") ||
+    descStr.includes("débito") ||
+    descStr.includes("debito") ||
+    descStr.includes("restaurante") ||
+    descStr.includes("transferência enviada") ||
+    descStr.includes("transferencia enviada") ||
+    descStr.includes("pix enviado") ||
+    descStr.includes("saque") ||
+    descStr.includes("tarifa") ||
+    descStr.includes("imposto") ||
+    descStr.includes("energia") ||
+    descStr.includes("água") ||
+    descStr.includes("agua") ||
+    descStr.includes("internet") ||
+    descStr.includes("combustível") ||
+    descStr.includes("combustivel") ||
+    descStr.includes("farmácia") ||
+    descStr.includes("farmacia") ||
+    descStr.includes("cartão") ||
+    descStr.includes("cartao");
+
+  const ehReceitaExplicita = 
+    tipoStr === "ENTRADA" ||
+    tipoStr === "CREDITO" ||
+    tipoStr === "C" ||
+    descStr.includes("salário") || 
+    descStr.includes("salario") || 
+    descStr.includes("transferência recebida") || 
+    descStr.includes("transferencia recebida") ||
+    descStr.includes("recebimento") ||
+    descStr.includes("lucro") ||
+    descStr.includes("serviço") ||
+    descStr.includes("freelance");
+
+  const ehDespesaOuSaida = ehDespesa || !ehReceitaExplicita;
 
   return (
     <div
@@ -95,7 +184,7 @@ export function TransacaoItem({
         className="font-dado shrink-0 text-sm font-semibold"
         style={{ color: ehDespesaOuSaida ? "var(--cor-erro)" : "var(--cor-conciliado)" }}
       >
-        {formatarValor(transacao.valor, transacao.tipo)}
+        {formatarValor(transacao.valor, transacao.tipo, transacao.descricao_extrato)}
       </span>
     </div>
   );
