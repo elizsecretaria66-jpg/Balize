@@ -8,19 +8,11 @@ interface TransacaoItemProps {
   onExcluir?: (id: string) => void;
 }
 
-function formatarValor(valor: number, tipo: string, descricao?: string) {
+function formatarValor(valor: number, tipo: string) {
   const tipoStr = (tipo || "").toUpperCase();
-  const descStr = (descricao || "").toLowerCase();
-
-  // Apenas receitas reais de clientes/entradas externas são positivas (+)
-  const ehReceitaReal = 
-    tipoStr === "ENTRADA" && 
-    !descStr.includes("salário") && 
-    !descStr.includes("salario") &&
-    !descStr.includes("pagamento");
-
-  // Tudo o mais (compras, contas, tarifas, e salários pagos) é despesa (-)
-  const ehDespesa = !ehReceitaReal || valor < 0;
+  
+  // Regra baseada estritamente no valor numérico ou no tipo oficial de saída
+  const ehDespesa = valor < 0 || tipoStr === "SAIDA" || tipoStr === "DESPESA" || tipoStr === "DEBITO";
 
   const sinal = ehDespesa ? "-" : "+";
   const valorAbsoluto = Math.abs(valor);
@@ -41,15 +33,7 @@ export function TransacaoItem({
   const ehSugestao = transacao.status_conciliacao === "SUGESTAO";
   
   const tipoStr = (transacao.tipo || "").toUpperCase();
-  const descStr = (transacao.descricao_extrato || "").toLowerCase();
-  
-  const ehReceitaReal = 
-    tipoStr === "ENTRADA" && 
-    !descStr.includes("salário") && 
-    !descStr.includes("salario") &&
-    !descStr.includes("pagamento");
-
-  const ehDespesaOuSaida = !ehReceitaReal || transacao.valor < 0;
+  const ehDespesaOuSaida = transacao.valor < 0 || tipoStr === "SAIDA" || tipoStr === "DESPESA" || tipoStr === "DEBITO";
 
   return (
     <div
@@ -111,7 +95,7 @@ export function TransacaoItem({
         className="font-dado shrink-0 text-sm font-semibold"
         style={{ color: ehDespesaOuSaida ? "var(--cor-erro)" : "var(--cor-conciliado)" }}
       >
-        {formatarValor(transacao.valor, transacao.tipo, transacao.descricao_extrato)}
+        {formatarValor(transacao.valor, transacao.tipo)}
       </span>
     </div>
   );
